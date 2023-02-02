@@ -20,7 +20,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-NONCE = 'ThisIsASampleNonce11'
+NONCE = 'ThisIsASampleNonce'
+STATE = 'ThisIsASampleState'
 
 
 @login_manager.user_loader
@@ -37,9 +38,11 @@ def home():
 def login():
     # get request params
     query_params = {'client_id': config["client_id"],
-                    'scope': "openid profile",
+                    'scope': "openid profile identity_card",
                     'nonce': NONCE,
-                    'response_type': 'code'}
+                    'state': STATE,
+                    'response_type': 'code',
+                    'redirect_uri': 'http://localhost:8080/callback'}
 
     # build request_uri
     request_uri = "{base_url}?{query_params}".format(
@@ -63,7 +66,8 @@ def callback():
     if not code:
         return "The code was not returned or is not accessible", 403
     query_params = {'grant_type': 'authorization_code',
-                    'code': code}
+                    'code': code,
+                    'redirect_uri': 'http://localhost:8080/callback'}
     query_params = requests.compat.urlencode(query_params)
     exchange = requests.post(
         config["token_uri"],
@@ -83,10 +87,14 @@ def callback():
 
     unique_id = userinfo_response["sub"]
     username = userinfo_response["preferred_username"]
-    user = User(id_=unique_id, name=username)
+    email = userinfo_response["email"] if "email" in userinfo_response else None
+    id_card_info = userinfo_response['documents'][0] if "documents" in userinfo_response else None
+    user = User(id_=unique_id, username=username,
+                identity_card_info=id_card_info,
+                email=email)
 
     if not User.get(unique_id):
-        User.create(unique_id, username)
+        User.create(unique_id, username, id_card_info, email)
 
     login_user(user)
     return redirect(url_for("profile"))

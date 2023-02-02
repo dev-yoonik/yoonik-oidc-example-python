@@ -6,9 +6,9 @@
 {% if current_user.is_authenticated %}
 <div>
     <p>Welcome back!</p>
-    <p>You have successfully authenticated using YooniK Face SSO, and you have been redirected back to this application.</p>
+    <p>You have successfully authenticated using YooniK SSO, and you have been redirected back to this application.</p>
     <p>Visit the <a href="{{ url_for('profile') }}">My Profile</a> page in this application to view the information
-        retrieved with your OAuth Access Token.</p>
+        retrieved with your OIDC Access Token.</p>
 </div>
 {% else %}
 <div>
