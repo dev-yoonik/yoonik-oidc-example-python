@@ -1,6 +1,6 @@
 ![logo](https://yk-website-images.s3.eu-west-1.amazonaws.com/LogoV4_TRANSPARENT.png?)
 
-# Flask + Youverse Hosted Logins
+# Flask + Youverse Hosted Login
 
 This example shows you how to use Flask to log in to your application with a Youverse Hosted Login page (OIDC protocol).
 
