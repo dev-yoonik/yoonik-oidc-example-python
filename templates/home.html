@@ -21,5 +21,9 @@
 <form method="get" action="login">
     <button id="login-button" class="btn btn-primary" type="submit">Login</button>
 </form>
+<form method="get" action="login">
+    <input type="hidden" name="vc" value="true" />
+    <button id="login-vc-button" class="btn btn-primary" type="submit">Login with Verifiable Credential</button>
+</form>
 {% endif %}
 {% endblock content %}

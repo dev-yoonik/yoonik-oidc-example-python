@@ -1,9 +1,11 @@
-# Flask + YooniK Hosted Login
+![logo](https://yk-website-images.s3.eu-west-1.amazonaws.com/LogoV4_TRANSPARENT.png?)
 
-This example shows you how to use Flask to log in to your application with an YooniK Hosted Login page (OIDC protocol).
+# Flask + Youverse Hosted Logins
 
-The login is achieved through the authorization code flow, where the user is redirected to the YooniK-Hosted login page.
-After the user authenticates, he is redirected back to the application with an access code that is then exchanged for an access token.
+This example shows you how to use Flask to log in to your application with a Youverse Hosted Login page (OIDC protocol).
+
+The login is achieved through the authorization code flow, where the user is redirected to the Youverse-Hosted login page.
+After the user authenticates, he is redirected back to the application with an access code that is then exchanged for access and id tokens.
 
 > Requires Python version 3.6.0 or higher.
 
@@ -28,20 +30,20 @@ Copy the [`client_secrets.json.dist`](client_secrets.json.dist) to `client_secre
 cp client_secrets.json.dist client_secrets.json
 ```
 
-You now need to contact [YooniK Support](mailto:support@yoonik.me) to request the following information:
+You now need to contact [Youverse support](mailto:support@youverse.id) to request the following information:
 
 - **Client ID** and **Client Secret**.
-- **YooniK Server Domain** - This is the URL of the authorization server that will perform authentication.
+- **Youverse Server Domain** - This is the URL of the authorization server that will perform authentication.
 
 Fill in the information that you gathered in the `client_secrets.json` file.
 
 ```json
 {
-  "auth_uri": "https://{YooniKServerDomain}/oauth/authorize",
+  "auth_uri": "https://{YouverseServerDomain}/oauth/authorize",
   "client_id": "{yourClientId}",
   "client_secret": "{yourClientSecret}",
-  "token_uri": "https://{YooniKServerDomain}/oauth/token",
-  "userinfo_uri": "https://{YooniKServerDomain}/oauth/userinfo"
+  "token_uri": "https://{YouverseServerDomain}/oauth/token",
+  "userinfo_uri": "https://{YouverseServerDomain}/oauth/userinfo"
 }
 ```
 
@@ -53,4 +55,4 @@ python main.py
 
 Now navigate to http://localhost:8080 in your browser.
 
-If you see a home page that prompts you to log in, then things are working! Clicking the **Log in** button will redirect you to the YooniK hosted sign-in page.
+If you see a home page that prompts you to log in, then things are working! Clicking the **Log in** button will redirect you to the Youverse hosted sign-in page.

@@ -9,7 +9,7 @@ from flask_login import (
     logout_user,
 )
 
-from helpers import config
+from helpers import config, decode_token
 from user import User
 
 
@@ -36,13 +36,19 @@ def home():
 
 @app.route("/login")
 def login():
+    vc = request.args.get("vc")
+    scope = "openid vc_authn" if vc else "openid profile identity_card"
+
     # get request params
     query_params = {'client_id': config["client_id"],
-                    'scope': "openid profile identity_card",
+                    'scope': scope,
                     'nonce': NONCE,
                     'state': STATE,
                     'response_type': 'code',
-                    'redirect_uri': 'http://localhost:8080/callback'}
+                    'redirect_uri': 'http://localhost:8081/callback'}
+
+    if vc:
+        query_params.update({'pres_req_conf_id': 'verified-email'})
 
     # build request_uri
     request_uri = "{base_url}?{query_params}".format(
@@ -67,28 +73,35 @@ def callback():
         return "The code was not returned or is not accessible", 403
     query_params = {'grant_type': 'authorization_code',
                     'code': code,
-                    'redirect_uri': 'http://localhost:8080/callback'}
+                    'redirect_uri': 'http://localhost:8081/callback'}
     query_params = requests.compat.urlencode(query_params)
-    exchange = requests.post(
+    response = requests.post(
         config["token_uri"],
         headers=headers,
         data=query_params,
         auth=(config["client_id"], config["client_secret"]),
-    ).json()
+    )
+    if not response.ok:
+        return f"Error calling token endpoint: {response.text}", 403
 
-    # Get access token
-    if not exchange.get("token_type"):
+    response_data = response.json()
+
+    # Get tokens
+    if response_data.get("token_type") != 'Bearer':
         return "Unsupported token type. Should be 'Bearer'.", 403
-    access_token = exchange["access_token"]
+    access_token = response_data["access_token"]
+    id_token_decoded = decode_token(response_data["id_token"])
+    if id_token_decoded is None:
+        return "Invalid id token.", 403
 
     # Get userinfo
-    userinfo_response = requests.get(config["userinfo_uri"],
-                                     headers={'Authorization': f'Bearer {access_token}'}).json()
+    # userinfo_response = requests.get(config["userinfo_uri"],
+    #                                  headers={'Authorization': f'Bearer {access_token}'}).json()
 
-    unique_id = userinfo_response["sub"]
-    username = userinfo_response["preferred_username"]
-    email = userinfo_response["email"] if "email" in userinfo_response else None
-    id_card_info = userinfo_response['documents'][0] if "documents" in userinfo_response else None
+    unique_id = id_token_decoded["sub"]
+    username = id_token_decoded["preferred_username"] if "preferred_username" in id_token_decoded else unique_id
+    email = id_token_decoded["email"] if "email" in id_token_decoded else None
+    id_card_info = id_token_decoded['documents'][0] if "documents" in id_token_decoded else None
     user = User(id_=unique_id, username=username,
                 identity_card_info=id_card_info,
                 email=email)
@@ -108,4 +121,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8080)
+    app.run(host="localhost", port=8081)
