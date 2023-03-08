@@ -1,5 +1,7 @@
-requests==2.21.0
-Flask==1.0.2
+requests==2.26.0
+Flask==1.1.4
 flask-cors==3.0.9
-pyOpenSSL==19.0.0
-Flask-Login==0.4.1
+pyOpenSSL==22.0.0
+Flask-Login==0.6.1
+six
+python-jose
